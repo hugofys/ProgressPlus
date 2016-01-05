@@ -116,6 +116,7 @@ public class ProgressPlus extends View {
         mSweepGradient = new SweepGradient(mCenter, mCenter, colors, positions);
         if (mCurrentProgress < 25) {
             mArcProgressPaint.setColor(color_start);
+            mArcProgressPaint.setShader(null);
         } else {
             mArcProgressPaint.setShader(mSweepGradient);
         }
