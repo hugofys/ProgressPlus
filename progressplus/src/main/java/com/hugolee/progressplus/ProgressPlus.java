@@ -7,6 +7,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.SweepGradient;
+import android.os.Bundle;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,7 +18,11 @@ import android.view.ViewParent;
  * Created by Hugo on 16/1/4.
  */
 public class ProgressPlus extends View {
-    private float mCurrentProgress;//当前进度
+    private final static String BUNDLE_PROGRESS = "BUNDLE_PROGRESS";
+    private final static String INSTANCE_STATE = "INSTANCE_STATE";
+
+
+    private int mCurrentProgress;//当前进度
 
     private Paint mArcProgressPaint;//画圆弧
     private Paint mArcBGPaint;//画圆弧
@@ -63,10 +69,10 @@ public class ProgressPlus extends View {
         colors = new int[]{color_start, color_end, color_start};
         mRingWidth = a.getDimensionPixelSize(R.styleable.ProgressPlus_ringWidth, getResources().getDimensionPixelSize(R.dimen.ringWidth));
         a.recycle();
-        init();
+        initPainters();
     }
 
-    private void init() {
+    private void initPainters() {
         mArcProgressPaint = new Paint();
         mArcProgressPaint.setStyle(Paint.Style.STROKE);
         mArcProgressPaint.setAntiAlias(true);
@@ -142,7 +148,7 @@ public class ProgressPlus extends View {
         return (int) (progress / 100 * 360);
     }
 
-    private float finxProgress(float t) {
+    private int finxProgress(int t) {
         if (t < 0) {
             t = 0;
         }
@@ -176,10 +182,10 @@ public class ProgressPlus extends View {
 
     private class AnimRunnable implements Runnable {
 
-        private float target;
+        private int target;
         private int speed;
 
-        public AnimRunnable(float target) {
+        public AnimRunnable(int target) {
             this.target = target;
             speed = target > mCurrentProgress ? 2 : -2;
         }
@@ -264,6 +270,28 @@ public class ProgressPlus extends View {
                 break;
         }
         return true;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        initPainters();
+        initSize();
+        if (state instanceof Bundle) {
+            setProgress(((Bundle) state).getInt(BUNDLE_PROGRESS, 0));
+            super.onRestoreInstanceState(((Bundle) state).getParcelable(INSTANCE_STATE));
+        } else {
+            super.onRestoreInstanceState(state);
+        }
+    }
+
+    //
+    @Override
+    protected Parcelable onSaveInstanceState() {
+        super.onSaveInstanceState();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
+        bundle.putInt(BUNDLE_PROGRESS, mCurrentProgress);
+        return bundle;
     }
 
 }
