@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="DashBoard2">
+        <attr name="bgColor" format="color"/>
+        <attr name="progressColor1" format="color"/>
+        <attr name="progressColor2" format="color"/>
+        <attr name="ringWidth" format="dimension"/>
+    </declare-styleable>
+</resources>
