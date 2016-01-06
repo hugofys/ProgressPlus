@@ -10,9 +10,11 @@ import android.graphics.SweepGradient;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
+import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
@@ -22,7 +24,7 @@ import android.view.animation.Transformation;
  */
 public class ProgressPlus extends View {
     private final static String BUNDLE_PROGRESS = "BUNDLE_PROGRESS";
-    private final static String INSTANCE_STATE = "INSTANCE_STATE";
+    private final static String BUNDLE_STATE = "BUNDLE_STATE";
 
 
     private float mCurrentProgress;//当前进度
@@ -185,7 +187,6 @@ public class ProgressPlus extends View {
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        int desiredWidth = Integer.MAX_VALUE;
         int widthMode = MeasureSpec.getMode(widthMeasureSpec);
         int widthSize = MeasureSpec.getSize(widthMeasureSpec);
         int heightMode = MeasureSpec.getMode(heightMeasureSpec);
@@ -196,13 +197,9 @@ public class ProgressPlus extends View {
 
         //Measure Width
         if (widthMode == MeasureSpec.EXACTLY) {
-            //Must be this size
             width = widthSize;
-        } else if (widthMode == MeasureSpec.AT_MOST) {
-            width = Math.min(desiredWidth, widthSize);
         } else {
-            //Be whatever you want
-            width = desiredWidth;
+            width = getDefaultWidth();
         }
 
         //Measure Height
@@ -219,6 +216,18 @@ public class ProgressPlus extends View {
         initSize();
         //MUST CALL THIS
         setMeasuredDimension(width, height);
+    }
+
+    /**
+     * get device width
+     *
+     * @return
+     */
+    private int getDefaultWidth() {
+        WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics outMetrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(outMetrics);
+        return Math.min(outMetrics.widthPixels, outMetrics.heightPixels);
     }
 
     @Override
@@ -261,7 +270,7 @@ public class ProgressPlus extends View {
         initSize();
         if (state instanceof Bundle) {
             setProgress((int) ((Bundle) state).getFloat(BUNDLE_PROGRESS, 0.0f));
-            super.onRestoreInstanceState(((Bundle) state).getParcelable(INSTANCE_STATE));
+            super.onRestoreInstanceState(((Bundle) state).getParcelable(BUNDLE_STATE));
         } else {
             super.onRestoreInstanceState(state);
         }
@@ -272,7 +281,7 @@ public class ProgressPlus extends View {
     protected Parcelable onSaveInstanceState() {
         super.onSaveInstanceState();
         Bundle bundle = new Bundle();
-        bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
+        bundle.putParcelable(BUNDLE_STATE, super.onSaveInstanceState());
         bundle.putFloat(BUNDLE_PROGRESS, mCurrentProgress);
         return bundle;
     }
