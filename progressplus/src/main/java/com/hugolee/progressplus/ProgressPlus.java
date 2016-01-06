@@ -13,8 +13,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 
 /**
@@ -285,8 +285,8 @@ public class ProgressPlus extends View {
         public ArcProgressAnimation(float newProgress) {
             this.oldProgress = mCurrentProgress;
             this.newProgress = newProgress;
-            setDuration((long) (Math.abs(newProgress - oldProgress) * 30));
-            setInterpolator(new DecelerateInterpolator());
+            setDuration((long) (Math.abs(newProgress - oldProgress) * 36));
+            setInterpolator(new AccelerateDecelerateInterpolator());
         }
 
         @Override
