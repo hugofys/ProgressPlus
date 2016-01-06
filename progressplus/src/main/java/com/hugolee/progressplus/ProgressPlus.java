@@ -291,8 +291,7 @@ public class ProgressPlus extends View {
 
         @Override
         protected void applyTransformation(float interpolatedTime, Transformation transformation) {
-            float progress = (oldProgress + ((newProgress - oldProgress) * interpolatedTime));
-            mCurrentProgress = progress;
+            mCurrentProgress = (oldProgress + ((newProgress - oldProgress) * interpolatedTime));
             invalidate();
         }
     }
