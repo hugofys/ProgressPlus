@@ -77,7 +77,10 @@ public class ProgressPlus extends View {
     }
 
     private void initPainters() {
+        float[] positions = {.0f, .25f, 1f};
+        mSweepGradient = new SweepGradient(mCenter, mCenter, colors, positions);
         mArcProgressPaint = new Paint();
+        mArcProgressPaint.setShader(mSweepGradient);
         mArcProgressPaint.setStyle(Paint.Style.STROKE);
         mArcProgressPaint.setAntiAlias(true);
         mArcProgressPaint.setStrokeCap(Paint.Cap.ROUND);
@@ -90,6 +93,8 @@ public class ProgressPlus extends View {
         mArcBGPaint.setAntiAlias(true);
         mArcBGPaint.setStyle(Paint.Style.STROKE);
         mArcBGPaint.setColor(color_bg);
+
+
     }
 
     private void initSize() {
@@ -106,32 +111,23 @@ public class ProgressPlus extends View {
 
         canvas.rotate(90, mCenter, mCenter);
 
-        int progressDegree = getRadian();
+        int currentRadian = getRadian();
 
         // draw background arc,must draw it first!
         mArcBGPaint.setStrokeWidth(mRingWidth);
-        canvas.drawArc(mArcRect, progressDegree, 360 - progressDegree, false, mArcBGPaint);
+        canvas.drawArc(mArcRect, currentRadian, 360 - currentRadian, false, mArcBGPaint);
         canvas.save();
 
         // draw progress arc
         mArcProgressPaint.setStrokeWidth(mRingWidth);
-        float position = (float) progressDegree / 360f;
-        float[] positions = {0.0f, 2.0f * position / 3.0f, position};
-        mSweepGradient = new SweepGradient(mCenter, mCenter, colors, positions);
-        if (mCurrentProgress < 20) {
-            mArcProgressPaint.setColor(color_start);
-            mArcProgressPaint.setShader(null);
-        } else {
-            mArcProgressPaint.setShader(mSweepGradient);
-        }
-        canvas.drawArc(mArcRect, 0, progressDegree, false, mArcProgressPaint);
+        canvas.drawArc(mArcRect, 0, currentRadian, false, mArcProgressPaint);
         canvas.save();
 
 
         //draw little white point,has offset
-        float pointRadian = (float) Math.toRadians((progressDegree - 5) % 360);
+        float pointRadian = (float) Math.toRadians((currentRadian - 5) % 360);
         //fix position nearing start point
-        if (progressDegree == 360 || progressDegree < 5) {
+        if (currentRadian == 360 || currentRadian < 5) {
             pointRadian = (float) Math.toRadians(0);
         }
         canvas.drawCircle((float) (Math.cos(pointRadian) * (mInnerRadius + mRingWidth / 2)) + mCenter,
@@ -146,7 +142,7 @@ public class ProgressPlus extends View {
     /**
      * get radian by current progress
      *
-     * @return
+     * @return current radian
      */
     private int getRadian() {
         float progress = fixProgress(mCurrentProgress);
@@ -221,7 +217,7 @@ public class ProgressPlus extends View {
     /**
      * get device width
      *
-     * @return
+     * @return device width
      */
     private int getDefaultWidth() {
         WindowManager wm = (WindowManager) getContext().getSystemService(Context.WINDOW_SERVICE);
