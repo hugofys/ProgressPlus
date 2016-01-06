@@ -13,6 +13,9 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewParent;
+import android.view.animation.Animation;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.Transformation;
 
 /**
  * Created by Hugo on 16/1/4.
@@ -22,7 +25,7 @@ public class ProgressPlus extends View {
     private final static String INSTANCE_STATE = "INSTANCE_STATE";
 
 
-    private int mCurrentProgress;//当前进度
+    private float mCurrentProgress;//当前进度
 
     private Paint mArcProgressPaint;//画圆弧
     private Paint mArcBGPaint;//画圆弧
@@ -47,8 +50,7 @@ public class ProgressPlus extends View {
     //背景色
     private int color_bg;
 
-    //动画进程
-    private Runnable animRunable;
+    private ArcProgressAnimation animation;
 
 
     public ProgressPlus(Context context) {
@@ -114,7 +116,7 @@ public class ProgressPlus extends View {
         float position = (float) progressDegree / 360f;
         float[] positions = {0.0f, 2.0f * position / 3.0f, position};
         mSweepGradient = new SweepGradient(mCenter, mCenter, colors, positions);
-        if (mCurrentProgress < 25) {
+        if (mCurrentProgress < 20) {
             mArcProgressPaint.setColor(color_start);
             mArcProgressPaint.setShader(null);
         } else {
@@ -149,59 +151,37 @@ public class ProgressPlus extends View {
         return (int) (progress / 100 * 360);
     }
 
-    private int finxProgress(int t) {
-        if (t < 0) {
-            t = 0;
+    private float finxProgress(float p) {
+        if (p < 0) {
+            p = 0;
         }
-        if (t > 100) {
-            t = 100;
+        if (p > 100) {
+            p = 100;
         }
-        return t;
+        return p;
     }
 
-    public void setProgress(int t) {
-        setProgress(t, true);
+    public void setProgress(int p) {
+        setProgress(p, true);
     }
 
-    public void setProgress(int t, boolean isAnim) {
-        if (finxProgress(t) == mCurrentProgress) {
+    public void setProgress(int p, boolean isAnim) {
+        p = (int) finxProgress(p);
+        if (p == mCurrentProgress) {
             return;
         }
         //no anim
         if (!isAnim) {
-            mCurrentProgress = finxProgress(t);
+            mCurrentProgress = finxProgress(p);
             invalidate();
             return;
         }
         //cancel previous anim
-        if (animRunable != null) {
-            removeCallbacks(animRunable);
+        if (animation != null) {
+            animation.cancel();
         }
         //set mCurrentProgress with anim
-        post(animRunable = new AnimRunnable(finxProgress(t)));
-    }
-
-    private class AnimRunnable implements Runnable {
-
-        private int target;
-        private int speed;
-
-        public AnimRunnable(int target) {
-            this.target = target;
-            speed = target > mCurrentProgress ? 2 : -2;
-        }
-
-        @Override
-        public void run() {
-            if (Math.abs(mCurrentProgress - target) < Math.abs(speed)) {
-                mCurrentProgress = target;
-                invalidate();
-            } else {
-                mCurrentProgress += speed;
-                invalidate();
-                postDelayed(this, 0);
-            }
-        }
+        startAnimation(animation = new ArcProgressAnimation(p));
     }
 
 
@@ -278,7 +258,7 @@ public class ProgressPlus extends View {
         initPainters();
         initSize();
         if (state instanceof Bundle) {
-            setProgress(((Bundle) state).getInt(BUNDLE_PROGRESS, 0));
+            setProgress((int) ((Bundle) state).getFloat(BUNDLE_PROGRESS, 0.0f));
             super.onRestoreInstanceState(((Bundle) state).getParcelable(INSTANCE_STATE));
         } else {
             super.onRestoreInstanceState(state);
@@ -291,8 +271,28 @@ public class ProgressPlus extends View {
         super.onSaveInstanceState();
         Bundle bundle = new Bundle();
         bundle.putParcelable(INSTANCE_STATE, super.onSaveInstanceState());
-        bundle.putInt(BUNDLE_PROGRESS, mCurrentProgress);
+        bundle.putFloat(BUNDLE_PROGRESS, mCurrentProgress);
         return bundle;
+    }
+
+    public class ArcProgressAnimation extends Animation {
+
+        private float oldProgress;
+        private float newProgress;
+
+        public ArcProgressAnimation(float newProgress) {
+            this.oldProgress = mCurrentProgress;
+            this.newProgress = newProgress;
+            setDuration((long) (Math.abs(newProgress - oldProgress) * 30));
+            setInterpolator(new DecelerateInterpolator());
+        }
+
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation transformation) {
+            float progress = (oldProgress + ((newProgress - oldProgress) * interpolatedTime));
+            mCurrentProgress = progress;
+            invalidate();
+        }
     }
 
 }
