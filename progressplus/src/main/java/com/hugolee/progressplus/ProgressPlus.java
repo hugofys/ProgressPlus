@@ -147,11 +147,11 @@ public class ProgressPlus extends View {
      * @return
      */
     private int getRadian() {
-        float progress = finxProgress(mCurrentProgress);
+        float progress = fixProgress(mCurrentProgress);
         return (int) (progress / 100 * 360);
     }
 
-    private float finxProgress(float p) {
+    private float fixProgress(float p) {
         if (p < 0) {
             p = 0;
         }
@@ -166,20 +166,18 @@ public class ProgressPlus extends View {
     }
 
     public void setProgress(int p, boolean isAnim) {
-        p = (int) finxProgress(p);
+        p = (int) fixProgress(p);
         if (p == mCurrentProgress) {
             return;
         }
         //no anim
         if (!isAnim) {
-            mCurrentProgress = finxProgress(p);
+            mCurrentProgress = p;
             invalidate();
             return;
         }
         //cancel previous anim
-        if (animation != null) {
-            animation.cancel();
-        }
+        clearAnimation();
         //set mCurrentProgress with anim
         startAnimation(animation = new ArcProgressAnimation(p));
     }
@@ -230,6 +228,10 @@ public class ProgressPlus extends View {
             case MotionEvent.ACTION_MOVE:
                 if (!mTouchable) {
                     return false;
+                }
+                //cancel animation first
+                if (animation != null) {
+                    clearAnimation();
                 }
                 float x = event.getX();
                 float y = event.getY();
