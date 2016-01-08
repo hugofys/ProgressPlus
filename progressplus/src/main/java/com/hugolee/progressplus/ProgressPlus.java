@@ -52,9 +52,6 @@ public class ProgressPlus extends View {
     //背景色
     private int color_bg;
 
-    private ArcProgressAnimation animation;
-
-
     public ProgressPlus(Context context) {
         this(context, null);
     }
@@ -77,22 +74,22 @@ public class ProgressPlus extends View {
     }
 
     private void initPainters() {
-        float[] positions = {.0f, .25f, 1f};
-        mSweepGradient = new SweepGradient(mCenter, mCenter, colors, positions);
         mArcProgressPaint = new Paint();
-        mArcProgressPaint.setShader(mSweepGradient);
         mArcProgressPaint.setStyle(Paint.Style.STROKE);
         mArcProgressPaint.setAntiAlias(true);
         mArcProgressPaint.setStrokeCap(Paint.Cap.ROUND);
+        mArcProgressPaint.setStrokeWidth(mRingWidth);
 
         mPointPaint = new Paint();
         mPointPaint.setAntiAlias(true);
         mPointPaint.setColor(Color.WHITE);
 
+
         mArcBGPaint = new Paint();
         mArcBGPaint.setAntiAlias(true);
         mArcBGPaint.setStyle(Paint.Style.STROKE);
         mArcBGPaint.setColor(color_bg);
+        mArcBGPaint.setStrokeWidth(mRingWidth);
 
 
     }
@@ -103,6 +100,9 @@ public class ProgressPlus extends View {
         mInnerRadius = mOuterRadius - mRingWidth / 2;
 
         mArcRect = new RectF(mCenter - mOuterRadius, mCenter - mOuterRadius, mCenter + mOuterRadius, mCenter + mOuterRadius);
+
+        float[] positions = {.0f, .25f, 1f};
+        mSweepGradient = new SweepGradient(mCenter, mCenter, colors, positions);
     }
 
 
@@ -114,12 +114,11 @@ public class ProgressPlus extends View {
         int currentRadian = getRadian();
 
         // draw background arc,must draw it first!
-        mArcBGPaint.setStrokeWidth(mRingWidth);
         canvas.drawArc(mArcRect, currentRadian, 360 - currentRadian, false, mArcBGPaint);
         canvas.save();
 
         // draw progress arc
-        mArcProgressPaint.setStrokeWidth(mRingWidth);
+        mArcProgressPaint.setShader(mSweepGradient);
         canvas.drawArc(mArcRect, 0, currentRadian, false, mArcProgressPaint);
         canvas.save();
 
@@ -135,8 +134,6 @@ public class ProgressPlus extends View {
                                  mRingWidth / 4,
                                  mPointPaint);
 
-        //reset canvas
-        canvas.restore();
     }
 
     /**
@@ -177,7 +174,7 @@ public class ProgressPlus extends View {
         //cancel previous anim
         clearAnimation();
         //set mCurrentProgress with anim
-        startAnimation(animation = new ArcProgressAnimation(p));
+        startAnimation(new ArcProgressAnimation(p));
     }
 
 
@@ -234,10 +231,7 @@ public class ProgressPlus extends View {
                 if (!mTouchable) {
                     return false;
                 }
-                //cancel animation first
-                if (animation != null) {
-                    clearAnimation();
-                }
+                clearAnimation();
                 float x = event.getX();
                 float y = event.getY();
                 double distance = Math.sqrt((x - mCenter) * (x - mCenter) + (y - mCenter) * (y - mCenter));
@@ -263,7 +257,6 @@ public class ProgressPlus extends View {
     @Override
     protected void onRestoreInstanceState(Parcelable state) {
         initPainters();
-        initSize();
         if (state instanceof Bundle) {
             setProgress((int) ((Bundle) state).getFloat(BUNDLE_PROGRESS, 0.0f));
             super.onRestoreInstanceState(((Bundle) state).getParcelable(BUNDLE_STATE));
