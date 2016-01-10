@@ -2,5 +2,5 @@
 <resources>
     <color name="progressColor1">#33DBFD</color>
     <color name="progressColor2">#31B6FB</color>
-    <color name="bgColor">#D5F6FD</color>
+    <color name="secondaryColor">#D5F6FD</color>
 </resources>

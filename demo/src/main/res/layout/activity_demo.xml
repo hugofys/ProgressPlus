@@ -61,22 +61,22 @@
 
             <com.hugolee.progressplus.ProgressPlus
                 android:id="@+id/progress1"
-                android:layout_gravity="center"
-                android:padding="16dp"
                 android:layout_width="300dp"
-                android:layout_height="300dp">
+                android:layout_height="300dp"
+                android:layout_gravity="center"
+                android:padding="16dp">
             </com.hugolee.progressplus.ProgressPlus>
 
 
             <com.hugolee.progressplus.ProgressPlus
                 android:id="@+id/progress2"
-                android:layout_gravity="center"
                 android:layout_width="200dp"
                 android:layout_height="200dp"
-                app:bgColor="#fae9e0"
+                android:layout_gravity="center"
                 app:progressColor1="#ef9b00"
                 app:progressColor2="#ea3e3e"
                 app:ringWidth="24dp"
+                app:secondaryColor="#fae9e0"
                 app:touchable="false">
             </com.hugolee.progressplus.ProgressPlus>
         </LinearLayout>

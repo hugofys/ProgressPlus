@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ProgressPlus">
-        <attr name="bgColor" format="color"/>
+        <attr name="secondaryColor" format="color"/>
         <attr name="progressColor1" format="color"/>
         <attr name="progressColor2" format="color"/>
         <attr name="ringWidth" format="dimension"/>

@@ -63,7 +63,7 @@ public class ProgressPlus extends View {
     public ProgressPlus(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.ProgressPlus);
-        color_bg = a.getColor(R.styleable.ProgressPlus_bgColor, getResources().getColor(R.color.bgColor));
+        color_bg = a.getColor(R.styleable.ProgressPlus_secondaryColor, getResources().getColor(R.color.secondaryColor));
         color_start = a.getColor(R.styleable.ProgressPlus_progressColor1, getResources().getColor(R.color.progressColor1));
         color_end = a.getColor(R.styleable.ProgressPlus_progressColor2, getResources().getColor(R.color.progressColor2));
         mTouchable = a.getBoolean(R.styleable.ProgressPlus_touchable, true);
@@ -246,7 +246,18 @@ public class ProgressPlus extends View {
                     vp = vp.getParent();
                 }
                 double degree = Math.atan2((y - mCenter), x - mCenter);
-                setProgress((int) (((degree / Math.PI * 180.0 + 270.0) % 360.0) / 360.0 * 100.0), false);
+                int newProgress = (int) (((degree / Math.PI * 180.0 + 270.0) % 360.0) / 360.0 * 100.0);
+                if (event.getAction() == MotionEvent.ACTION_MOVE) {
+                    if (mCurrentProgress < 25 && newProgress > 75) {
+                        setProgress(0, false);
+                        return false;
+                    }
+                    if (mCurrentProgress > 75 && newProgress < 25) {
+                        setProgress(100, false);
+                        return false;
+                    }
+                }
+                setProgress(newProgress, false);
                 return true;
             default:
                 break;
